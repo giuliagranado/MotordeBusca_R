@@ -1,6 +1,7 @@
 # Corpus - Baixada Santista (Santos, São Vicente, Cubatão)
 # Coleta de texto via API da Wikipédia e divisão em parágrafos
 
+
 library(httr2)
 
 # 1. Baixa o texto puro (extract) de um artigo da Wikipédia
@@ -89,7 +90,7 @@ salvar_corpus_txt <- function(df, output_dir = "/dataset",
                                filename = "wikipedia_cidades.txt",
                                por_cidade = FALSE) {
   if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
- 
+
   if (!por_cidade) {
     # um único arquivo, com cabeçalho por cidade e parágrafos em sequência
     linhas <- unlist(lapply(split(df, df$cidade), function(bloco) {
@@ -101,13 +102,13 @@ salvar_corpus_txt <- function(df, output_dir = "/dataset",
         ""
       )
     }), use.names = FALSE)
- 
+
     caminho <- file.path(output_dir, filename)
     writeLines(linhas, caminho, useBytes = TRUE)
     cat(sprintf("\nTXT salvo em: %s\n", caminho))
     return(caminho)
   }
- 
+
   # um arquivo .txt por cidade
   caminhos <- sapply(split(df, df$cidade), function(bloco) {
     nome_arquivo <- paste0(gsub("[^A-Za-zÀ-ÿ0-9]+", "_", bloco$cidade[1]), ".txt")
@@ -116,7 +117,7 @@ salvar_corpus_txt <- function(df, output_dir = "/dataset",
     cat(sprintf("TXT salvo em: %s\n", caminho))
     caminho
   })
- 
+
   unname(caminhos)
 }
 
@@ -134,11 +135,13 @@ print(table(corpus$cidade))
 # descomente para visualizar em janela (RStudio)
  #View(corpus)
 
+#source("corpus_cidades.R")
+
 # descomente para salvar em CSV
- #salvar_corpus_csv(corpus, output_dir = "/dataset")
+salvar_corpus_csv(corpus, output_dir = "/dataset")
 
 # descomente para salvar em TXT (um único arquivo com todas as cidades)
-# salvar_corpus_txt(corpus, output_dir = "/dataset")
+ salvar_corpus_txt(corpus, output_dir = "/dataset")
 
 # descomente para salvar em TXT (um arquivo .txt por cidade)
-# salvar_corpus_txt(corpus, output_dir = "estrutura/bancoDeDados", por_cidade = TRUE)
+# salvar_corpus_txt(corpus, output_dir = "/dataset", por_cidade = TRUE)
