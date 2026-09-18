@@ -1,4 +1,4 @@
-# 01_corpus_cidades.md
+# 01 - Corpus (com as Cidades)
 
 No arquivo [01_corpus_cidades.r](https://github.com/giuliagranado/MotordeBusca_R/blob/main/codigos/01_corpus_cidades.r)  <p>
 Foram importados 3 artigos utilizando a API da wikipedia, sendo um de cada cidade: Santos, São Vicente e Cubatão. Então foi dividido os textos em parágrafos, cada um deles recebeu um índice e foram salvos no Corpus. No final é disponibilizado o arquivo em formato .csv e .txt , o formato texto sendo opcional se será um arquivo texto por cidade ou um único arquivo para as três. </p>
