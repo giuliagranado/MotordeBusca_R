@@ -9,8 +9,8 @@ TEMPORÁRIO
 ## 1. Corpus e Usuário Imaginado
 *Descrição da estrutura do corpus (166 parágrafos), taxa de preenchimento, distribuição do tamanho dos textos e definição do perfil do usuário (turistas e pessoas buscando informações sobre qualidade de vida e aspectos socioeconômicos dos municípios).*
 
-## 2. Necessidades de Informação
-*Apresentação da tabela com as 10 necessidades de informação mapeadas no Entregável 2 (identificador, necessidade em prosa, consulta textual e notas de escopo).*
+<h3> 2. Necessidades de Informação </h3>
+<table>
 
 ## 3. Guia de Julgamento e Escala
 *Detalhamento da escala operacional de 3 níveis (0, 1 e 2), definição da Regra de Ouro e consolidação dos casos de fronteira acordados pelo grupo.*
