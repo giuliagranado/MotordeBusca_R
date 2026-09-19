@@ -90,8 +90,90 @@ o nome referente ao documento que pertence e o número do parágrafo dentro do d
 *Explicação do método de pooling com top-k (k=5) unificado e embaralhado a partir dos modelos Booleano, TF-IDF e BM25. Discussão sobre o viés do pooling (superestimação do Recall real devido aos documentos não recuperados na pool).*
 
 <h3> 5. Concordância entre Juízes </h3>
-*Apresentação da Matriz de Confusão 3x3 e do valor de Kappa de Cohen obtido na amostra de 20% em duplicata. Análise da qualidade das diretrizes e discussão dos itens discordantes.*
-
+<p>Todos os três membros do grupo realizaram o julgamento, assim existem três análises kappa distintas. Em geral, todos os níveis de concordância eram acima de 50%, com os valores de pe criculando entorno de 34%</br>
+O menor índice de concordância foi de 52%, com um Kappa de 0.2629, entre o juíz um e o juíz dois, gerando a seguinte matriz de confusão:</p>
+<table>
+  <tr>
+    <th>cf</th>
+    <th>0</th>
+    <th>1</th>
+    <th>2</th>
+  </tr>
+  <tr>
+    <th>0</th>
+    <th>8</th>
+    <th>4</th>
+    <th>0</th>
+  </tr>
+   <tr>
+    <th>1</th>
+    <th>10</th>
+    <th>7</th>
+    <th>6</th>
+  </tr>
+  <tr>
+    <th>2</th>
+    <th>3</th>
+    <th>11</th>
+    <th>22</th>
+  </tr>
+</table>
+<p>Nesse caso houve alta ambiguidade, 34 dos 71 items julgados mostraram discordância</br> As demais comparações tiveram concordância observada idêntica, com apenas 0.0005 de diferença no valor Kappa. 
+considerando que ambas tinham o mesmo número de discordâncias, essa pequena discrepância se deve únicamente á tabela de confusão, que são as seguintes:</p>
+<h4>Juíz 1 e 3</h4>
+<table>
+  <tr>
+    <th>cf</th>
+    <th>0</th>
+    <th>1</th>
+    <th>2</th>
+  </tr>
+  <tr>
+    <th>0</th>
+    <th>16</th>
+    <th>2</th>
+    <th>3</th>
+  </tr>
+   <tr>
+    <th>1</th>
+    <th>9</th>
+    <th>8</th>
+    <th>5</th>
+  </tr>
+  <tr>
+    <th>2</th>
+    <th>2</th>
+    <th>6</th>
+    <th>20</th>
+  </tr>
+</table>
+<h4>Juíz 2 e 3</h4>
+<table>
+  <tr>
+    <th>cf</th>
+    <th>0</th>
+    <th>1</th>
+    <th>2</th>
+  </tr>
+  <tr>
+    <th>0</th>
+    <th>10</th>
+    <th>2</th>
+    <th>0</th>
+  </tr>
+   <tr>
+    <th>1</th>
+    <th>9</th>
+    <th>10</th>
+    <th>4</th>
+  </tr>
+  <tr>
+    <th>2</th>
+    <th>8</th>
+    <th>4</th>
+    <th>24</th>
+  </tr>
+</table>
 <h3> 6. Resultados por Métrica </h3>
 *Tabela comparativa consolidada contendo os desempenhos médios dos três modelos nas métricas: P@1, P@3, P@5, P@10, R@1, R@3, R@5, R@10, MAP, MRR, nDCG binário e nDCG graduado.*
 
@@ -111,3 +193,4 @@ que não continham informações completas ao invés das informações em si, qu
 
 ## 9. Conclusão
 *Síntese dos achados experimentais, indicação do modelo de recuperação mais adequado para a aplicação e considerações finais.*
+
