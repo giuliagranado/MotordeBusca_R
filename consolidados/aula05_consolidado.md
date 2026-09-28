@@ -179,9 +179,9 @@ considerando que ambas tinham o mesmo número de discordâncias, essa pequena di
 
 | Modelo | MAP | MRR | nDCG Binário | nDCG Graduado | P@3 | R@3 |
 |---|---|---|---|---|---|---|
-| **Booleano** | - | - | - | - | - | - |
-| **TF-IDF** | - | - | - | - | - | - |
-| **BM25** | - | - | - | - | - | - |
+| **Booleano** | 0.799093677190811 | 1 | 0.826 | 0.851 | 1 | 0.107142857142857 |
+| **TF-IDF** | 0.782558607588315 | 1 | 0.808 | 0.866 | 0.66 | 0.0714285714285714 |
+| **BM25** | 0.742080102816339 | 1 | 0.794 | 0.866 | 0.66 | 0.0714285714285714 |
 
 ## 7. Análise Qualitativa por Consulta
 *Análise individualizada das consultas em que o BM25 superou o TF-IDF e vice-versa. Estudo de casos onde falhas de vocabulário ou normalização de tamanho do texto causaram queda de desempenho nos modelos.*
@@ -192,5 +192,5 @@ mesmo sendo relvantes para a necessidade. O corpus também se limita á apenas t
 que não continham informações completas ao invés das informações em si, que estavam quebradas separadamente, por não ser capaz de entender contexto</p>
 
 ## 9. Conclusão
-*Síntese dos achados experimentais, indicação do modelo de recuperação mais adequado para a aplicação e considerações finais.*
+Consistentemente, os melhores resultados foram da busca booleana, com excessçao do nDCG Graduado aonde ela performou pior que as outras duas.
 
