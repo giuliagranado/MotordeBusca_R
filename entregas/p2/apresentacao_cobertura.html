@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cobertura da Consulta — GGYeah</title>
+<style>
+  :root {
+    --bg: #0f172a; --card: #1e293b; --txt: #f1f5f9; --muted: #94a3b8;
+    --accent: #38bdf8; --good: #34d399; --bad: #f87171; --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: var(--bg); color: var(--txt); height: 100vh; overflow: hidden; }
+  .deck { height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; padding: 56px 72px; display: none;
+           flex-direction: column; justify-content: center; overflow-y: auto; }
+  .slide.dense { justify-content: flex-start; padding-top: 30px; padding-bottom: 70px; }
+  .slide.dense .bar-row { grid-template-columns: 210px 1fr 60px; }
+  .slide.dense .bar-row > div:first-child { white-space: nowrap; }
+  .slide.dense .bar-cap { white-space: nowrap; }
+  .slide.dense h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .slide.dense .sub { margin-bottom: 14px; font-size: 1.1rem; }
+  .slide.dense .terms { margin: 8px 0 0; }
+  .slide.dense .term { padding: 10px 14px; min-width: 150px; }
+  .slide.dense .bars { gap: 6px; }
+  .slide.dense .bar-row { font-size: 1rem; }
+  .slide.dense .bar-track { height: 20px; }
+  .slide.dense .note { margin-top: 10px; font-size: .95rem; }
+  .slide.active { display: flex; animation: fade .35s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  h1 { font-size: 2.6rem; line-height: 1.15; margin-bottom: 14px; }
+  h2 { font-size: 2.1rem; margin-bottom: 22px; color: var(--accent); }
+  h3 { font-size: 1.2rem; margin-bottom: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  p, li { font-size: 1.3rem; line-height: 1.5; }
+  ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  li::before { content: "▸ "; color: var(--accent); }
+  .tag { display: inline-block; font-size: .95rem; color: var(--bg); background: var(--accent);
+         padding: 4px 12px; border-radius: 999px; margin-bottom: 18px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 1.25rem; margin-bottom: 26px; }
+  .cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 18px; }
+  .card { background: var(--card); border-radius: 14px; padding: 22px; }
+  .card .big { font-size: 2.4rem; font-weight: 700; color: var(--accent); }
+  .card .lbl { font-size: 1rem; color: var(--muted); margin-top: 6px; }
+  .formula { background: var(--card); border-left: 4px solid var(--accent); border-radius: 10px;
+             padding: 18px 22px; font-size: 1.35rem; margin: 16px 0; font-family: Georgia, serif; }
+  .note { color: var(--muted); font-size: 1.05rem; margin-top: 16px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: center; }
+  /* barras de cobertura */
+  .bars { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: 70px 1fr 70px; align-items: center; gap: 12px; font-size: 1.1rem; }
+  .bar-track { background: #334155; border-radius: 6px; height: 26px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width .8s ease; }
+  .bar-val { font-variant-numeric: tabular-nums; text-align: right; }
+  .bar-cap { font-size: .9rem; color: var(--muted); }
+  /* grade de MAP */
+  .mapbars .bar-track { height: 34px; }
+  .highlight { outline: 2px solid var(--warn); outline-offset: 4px; border-radius: 6px; }
+  /* palavras da consulta */
+  .terms { display: flex; gap: 14px; flex-wrap: wrap; margin: 14px 0 6px; }
+  .term { background: var(--card); border-radius: 12px; padding: 14px 18px; text-align: center; min-width: 170px; }
+  .term b { font-size: 1.5rem; color: var(--accent); display: block; }
+  .term span { font-size: .95rem; color: var(--muted); }
+  table { border-collapse: collapse; font-size: 1.1rem; margin-top: 10px; }
+  th, td { padding: 10px 16px; border-bottom: 1px solid #334155; text-align: left; }
+  th { color: var(--muted); font-weight: 600; }
+  /* navegação */
+  .nav { position: fixed; bottom: 18px; right: 28px; display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: .95rem; }
+  .nav button { background: var(--card); color: var(--txt); border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 1rem; }
+  .nav button:hover { background: #334155; }
+  .progress { position: fixed; top: 0; left: 0; height: 4px; background: var(--accent); transition: width .3s; }
+  .who { position: fixed; bottom: 18px; left: 28px; color: var(--muted); font-size: .9rem; }
+  @media (max-width: 800px) {
+    .slide { padding: 36px 24px; }
+    .row { grid-template-columns: 1fr; }
+    h1 { font-size: 1.9rem; } h2 { font-size: 1.6rem; } p, li { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck">
+
+  <!-- 1. TÍTULO -->
+  <section class="slide active">
+    <span class="tag">Tema 3 · Projeto Integrador III</span>
+    <h1>Cobertura da Consulta<br>em Reordenação em Dois Estágios</h1>
+    <p class="sub">Retrieve &amp; Rerank: a cobertura ponderada por IDF ajuda a refinar o topo do BM25?</p>
+    <div class="cards">
+      <div class="card"><div class="big">1º</div><div class="lbl">BM25 recupera e ordena</div></div>
+      <div class="card"><div class="big">2º</div><div class="lbl">Um segundo critério reordena o topo</div></div>
+      <div class="card"><div class="big">?</div><div class="lbl">A cobertura melhora o resultado?</div></div>
+    </div>
+    <p class="note">Grupo GGYeah · Gabrielle Lara, Giulia Granado e Yuri Salgado · Baixada Santista</p>
+  </section>
+
+  <!-- 2. O QUE É COBERTURA -->
+  <section class="slide">
+    <h3>Fundamentação</h3>
+    <h2>O que é a cobertura?</h2>
+    <p>Quanto da "importância" da consulta está presente no documento?</p>
+    <div class="formula">cob(q, d) = soma dos IDF dos termos de q presentes em d &nbsp;÷&nbsp; soma dos IDF de todos os termos de q</div>
+    <ul>
+      <li>IDF mede raridade: termo raro vale mais</li>
+      <li>Resultado entre <b>0</b> (nenhum termo) e <b>1</b> (todos os termos)</li>
+      <li>Hipótese: documentos que cobrem mais termos raros devem subir</li>
+    </ul>
+  </section>
+
+  <!-- 3. EXEMPLO MANUAL -->
+  <section class="slide dense">
+    <h3>Ponto 1 · Cálculo manual</h3>
+    <h2>Consulta: "modelo de recuperação"</h2>
+    <p class="sub">Corpus de 8 documentos (N = 8)</p>
+    <div class="terms">
+      <div class="term"><b>modelo</b><span>aparece em 2 docs · peso 1,281</span></div>
+      <div class="term"><b>recuperação</b><span>aparece em 3 docs · peso 0,944</span></div>
+      <div class="term"><b>de</b><span>aparece em 4 docs · peso 0,693</span></div>
+    </div>
+    <p class="sub" style="margin-top:20px">Peso total da consulta: 2,918</p>
+    <div class="bars" id="cobBars"></div>
+    <p class="note">Cobertura = peso dos termos presentes ÷ 2,918. Documentos 4, 5 e 8: cobertura zero.</p>
+  </section>
+
+  <!-- 4. CONTAR vs PONDERAR -->
+  <section class="slide">
+    <h3>Ponto 1 · Por que pesar pelo IDF?</h3>
+    <h2>A contagem de palavras é uma métrica válida?</h2>
+    <p class="sub">Consulta: "modelo de texto" · documento 2 tem "modelo" e "de", falta "texto"</p>
+    <div class="row">
+      <div class="card">
+        <div class="lbl">Contagem simples</div>
+        <div class="big" style="color:var(--bad)">67%</div>
+        <div class="lbl">2 de 3 termos: parece muito coberto</div>
+      </div>
+      <div class="card">
+        <div class="lbl">Cobertura por IDF</div>
+        <div class="big" style="color:var(--good)">52%</div>
+        <div class="lbl">A falta de "texto", termo raro, pesa mais</div>
+      </div>
+    </div>
+    <p class="note">A ausência de um termo raro deve ser penalizada com mais força que a de um termo comum.</p>
+  </section>
+
+  <!-- 5. REORDENAÇÃO -->
+  <section class="slide">
+    <h3>Ponto 2 · Reordenação no corpus de 8 documentos</h3>
+    <h2>Por que a ordem não muda?</h2>
+    <div class="row">
+      <div>
+        <p><b>BM25 puro:</b> d3 → d1 → d2</p>
+        <p style="margin-top:10px"><b>Reordenado pela cobertura:</b> d3 → d1 → d2</p>
+        <ul style="margin-top:22px">
+          <li>O BM25 já soma pesos IDF, ajustados por frequência e tamanho</li>
+          <li>A cobertura usa o mesmo sinal de raridade</li>
+          <li>Os dois critérios concordam, então não há informação nova</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="lbl">Resultado</div>
+        <div class="big" style="color:var(--warn)">Sem mudança</div>
+        <div class="lbl">Em k = 3, a cobertura não altera a ordem</div>
+      </div>
+    </div>
+    <p class="note">Reordenador testado: BM25 normalizado + cobertura (peso 1,0), aplicado aos k primeiros.</p>
+  </section>
+
+  <!-- 6. LIMITES -->
+  <section class="slide">
+    <h3>Ponto 3 · Limites teóricos</h3>
+    <h2>Quando a cobertura para de ajudar</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="big">2ⁿ</div>
+        <div class="lbl">Notas possíveis com n termos. Com 2 termos de mesmo peso, só há 3 valores: 0, 0,5 e 1</div>
+      </div>
+      <div class="card">
+        <div class="big">0 / 1</div>
+        <div class="lbl">Consulta de 1 termo: cobertura vira binária. Todos os relevantes empatam</div>
+      </div>
+      <div class="card">
+        <div class="big">=</div>
+        <div class="lbl">Empate: o desempate devolve a ordem do BM25, e o reordenador fica inerte</div>
+      </div>
+    </div>
+    <p class="note">Exemplo do notebook: "informação recuperação" dá 0,345 em dois documentos, empatados.</p>
+  </section>
+
+  <!-- 7. EXPERIMENTO REAL -->
+  <section class="slide">
+    <h3>Ponto 4 · Corpus do grupo</h3>
+    <h2>166 documentos · Santos, São Vicente e Cubatão</h2>
+    <p class="sub">Desenvolvimento (q01–q07) para escolher k · Teste cego (q08–q10) só para validar</p>
+    <div class="row">
+      <div>
+        <h3>MAP no desenvolvimento</h3>
+        <div class="bars mapbars" id="mapDev"></div>
+        <p class="note">k = 10 foi escolhido por ser o melhor. A diferença para k = 0 é de 0,001.</p>
+      </div>
+      <div>
+        <h3>MAP no teste cego</h3>
+        <div class="cards" style="grid-template-columns: 1fr 1fr; margin-top:0">
+          <div class="card">
+            <div class="big" style="color:var(--muted)">0,3919</div>
+            <div class="lbl">BM25 puro (k = 0)</div>
+          </div>
+          <div class="card">
+            <div class="big">0,4018</div>
+            <div class="lbl">Cobertura (k = 10)</div>
+          </div>
+        </div>
+        <p class="note" style="margin-top:20px">Ganho de <b>+0,0099</b>. Pequeno e com apenas 3 consultas: ainda não é conclusivo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. CONCLUSÃO -->
+  <section class="slide">
+    <h3>Conclusão e engenharia</h3>
+    <h2>A cobertura sozinha não justifica o custo</h2>
+    <div class="row">
+      <div>
+        <p style="margin-bottom:10px"><b style="color:var(--good)">Ponto forte</b></p>
+        <ul><li>Métrica interpretável</li><li>Reforça termos raros em consultas com vários termos</li></ul>
+        <p style="margin:22px 0 10px"><b style="color:var(--bad)">Limitação</b></p>
+        <ul><li>Redundante com o BM25</li><li>Não separa bem em consultas curtas ou com empates</li></ul>
+      </div>
+      <div>
+        <h3>Próximos sinais para a arquitetura final</h3>
+        <ul>
+          <li><b>Proximidade ordenada:</b> ordem e adjacência dos termos</li>
+          <li><b>Modelos densos:</b> LSA e embeddings, para sinônimos e semântica</li>
+          <li><b>Learning to Rank:</b> combina sinais com pesos aprendidos</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. AGRADECIMENTO -->
+  <section class="slide" style="align-items:center; text-align:center;">
+    <h1 style="font-size:3.2rem">Obrigado pela atenção!</h1>
+    <p class="sub" style="margin-top:18px">Grupo GGYeah · Gabrielle Lara, Giulia Granado e Yuri Salgado</p>
+  </section>
+
+</div>
+
+<div class="who" id="counter"></div>
+<div class="nav">
+  <button id="prev">←</button>
+  <span id="pos"></span>
+  <button id="next">→</button>
+</div>
+
+<script>
+  // Coberturas do notebook (corpus de 8 documentos, consulta "modelo de recuperação")
+  const cob = [
+    { d: "d3", v: 1.000, cap: "modelo + recuperação + de" },
+    { d: "d2", v: 0.676, cap: "modelo + de" },
+    { d: "d1", v: 0.561, cap: "recuperação + de" },
+    { d: "d6", v: 0.324, cap: "recuperação" },
+    { d: "d7", v: 0.237, cap: "de" },
+    { d: "d4", v: 0.000, cap: "nenhum termo" },
+    { d: "d5", v: 0.000, cap: "nenhum termo" },
+    { d: "d8", v: 0.000, cap: "nenhum termo" }
+  ];
+  const bars = document.getElementById("cobBars");
+  cob.forEach(r => {
+    const color = r.v >= 0.5 ? "var(--good)" : (r.v > 0 ? "var(--warn)" : "#475569");
+    bars.insertAdjacentHTML("beforeend",
+      `<div class="bar-row">
+         <div><b>${r.d}</b> <span class="bar-cap">${r.cap}</span></div>
+         <div class="bar-track"><div class="bar-fill" style="width:${r.v*100}%;background:${color}"></div></div>
+         <div class="bar-val">${(r.v*100).toFixed(0)}%</div>
+       </div>`);
+  });
+
+  // MAP no desenvolvimento (notebook)
+  const mapDev = [
+    { k: "k = 0 (BM25 puro)", v: 0.3157 },
+    { k: "k = 5", v: 0.3157 },
+    { k: "k = 10 (escolhido)", v: 0.3167 },
+    { k: "k = 20", v: 0.3130 }
+  ];
+  const mb = document.getElementById("mapDev");
+  const max = 0.35, min = 0.30; // eixo ampliado só para visualizar diferenças
+  mapDev.forEach(r => {
+    const pct = ((r.v - min) / (max - min)) * 100;
+    const hl = r.k.includes("escolhido") ? " highlight" : "";
+    mb.insertAdjacentHTML("beforeend",
+      `<div class="bar-row${hl}" style="grid-template-columns:200px 1fr 80px">
+         <div>${r.k}</div>
+         <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--accent)"></div></div>
+         <div class="bar-val">${r.v.toFixed(4)}</div>
+       </div>`);
+  });
+  const note = document.createElement("p");
+  note.className = "bar-cap";
+  note.style.marginTop = "8px";
+  note.textContent = "Eixo começa em 0,30 para tornar as diferenças visíveis.";
+  mb.after(note);
+
+  // Navegação
+  const slides = document.querySelectorAll(".slide");
+  let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, j) => s.classList.toggle("active", j === i));
+    document.getElementById("pos").textContent = `${i + 1} / ${slides.length}`;
+    document.getElementById("progress").style.width = ((i + 1) / slides.length * 100) + "%";
+    history.replaceState(null, "", "#" + (i + 1));
+  }
+  document.getElementById("prev").onclick = () => show(i - 1);
+  document.getElementById("next").onclick = () => show(i + 1);
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") show(i + 1);
+    if (e.key === "ArrowLeft" || e.key === "PageUp") show(i - 1);
+    if (e.key === "Home") show(0);
+    if (e.key === "End") show(slides.length - 1);
+  });
+  let tx = null;
+  document.addEventListener("touchstart", e => tx = e.touches[0].clientX);
+  document.addEventListener("touchend", e => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) show(dx < 0 ? i + 1 : i - 1);
+    tx = null;
+  });
+  const start = parseInt(location.hash.slice(1), 10);
+  show(isNaN(start) ? 0 : start - 1);
+</script>
+</body>
+</html>
